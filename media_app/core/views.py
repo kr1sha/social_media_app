@@ -5,8 +5,27 @@ from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.contrib.auth.models import User
 
-from .modules import create_user
+from .modules import get_image
 from .models import Profile
+
+
+@login_required(login_url='signin')
+def settings(request):
+
+    profile = Profile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+
+        image = get_image(request, profile)
+        bio = request.POST['bio']
+        location = request.POST['location']
+
+        profile.update_info(image, bio, location)
+        profile.save()
+
+        return redirect('settings')
+
+    return render(request, 'setting.html', {'user_profile': profile})
 
 
 @login_required(login_url='signin')
@@ -24,15 +43,14 @@ def signup(request):
         password2 = request.POST['password2']
 
         try:
-            user = create_user(username, email, password, password2)
+            profile = Profile.create(request, username, email, password, password2)
         except ValidationError as e:
             [messages.info(request, error) for error in e]
             return redirect('signup')
 
-        profile = Profile.objects.create(user=user, id_user=user.id)
         profile.save()
 
-        redirect('signin')
+        return redirect('settings')
 
     else:
         return render(request, 'signup.html')

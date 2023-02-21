@@ -29,3 +29,13 @@ def create_user(username: str, email: str, password: str, password2: str) -> Use
         user.save()
         return user
 
+
+def get_image(request, profile):
+    """ give image from request or give old profile image """
+    image = request.FILES.get('image')
+    if image is not None:
+        return image
+    else:
+        return profile.profile_image
+
+
