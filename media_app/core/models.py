@@ -60,3 +60,19 @@ class PostLike(models.Model):
 
     def __str__(self):
         return self.username
+
+
+class Follow(models.Model):
+    follower = models.CharField(max_length=100, verbose_name='подписчик')
+    user = models.CharField(max_length=100, verbose_name='пользователь')
+
+    def __str__(self):
+        return self.user
+
+    @staticmethod
+    def get_follower_action_name(user: str, follower: str) -> str:
+        """get unfollow if follow(user, follower) exist and follow if it's not exist"""
+        if Follow.objects.filter(user=user, follower=follower).first():
+            return 'Unfollow'
+        else:
+            return 'Follow'

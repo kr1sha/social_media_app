@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.core.exceptions import ValidationError
 
 
@@ -37,5 +36,4 @@ def get_image(request, profile):
         return image
     else:
         return profile.profile_image
-
 

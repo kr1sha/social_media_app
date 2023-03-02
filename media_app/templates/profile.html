@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="" />
     <meta name="keywords" content="" />
-	<title>Profile - {{user.username}}</title>
+	<title>Profile - {{user_object.username}}</title>
    <!-- <link rel="icon" href="images/fav.png" type="image/png" sizes="16x16"> -->
     
     <link rel="stylesheet" href="{% static 'css/main.min.css' %}">
@@ -27,8 +27,10 @@
 	<section>
 			<div class="feature-photo">
 				<figure><img src="{% static 'images/resources/timeline-1.jpg' %}" alt=""></figure>
-				<form>
+				<form action="{% url 'follow' %}" method="POST">
+					{% csrf_token %}
 					<div class="add-btn">
+
 					<span style="color: white; font-size: 27px; margin-right: 520px;"><b><u><a href="/">Home</a></u></b></span>
 					{% if posts_count == 0 %}
 						<span style="color: white; font-size: 27px;"><b>No posts</b></span>
@@ -37,10 +39,29 @@
                     {% else %}
 						<span style="color: white; font-size: 27px;"><b>{{ posts_count }} Posts</b></span>
                     {% endif %}
-					<span style="color: white; font-size: 27px;"><b>1.7m followers</b></span>
-					<span style="color: white; font-size: 27px;"><b>3.5k following</b></span>
-					<a href="" title="" data-ripple=""><button style="background-color: #ffc0cb; border: #ffc0cb;">Follow</button></a>
-					
+
+					{% if user_followers_count == 0 %}
+						<span style="color: white; font-size: 27px;"><b>No followers</b></span>
+					{% elif user_followers_count == 1 %}
+						<span style="color: white; font-size: 27px;"><b>1 Follower</b></span>
+                    {% else %}
+						<span style="color: white; font-size: 27px;"><b>{{ user_followers_count }} followers</b></span>
+                    {% endif %}
+
+					{% if user_following_count == 0 %}
+						<span style="color: white; font-size: 27px;"><b>No following</b></span>
+					{% else %}
+						<span style="color: white; font-size: 27px;"><b>{{ user_following_count }} following</b></span>
+                    {% endif %}
+
+					<input type="hidden" value="{{user.username}}" name="follower">
+					<input type="hidden" value="{{user_object.username}}" name="user">
+					{% if user == user_object %}
+						<a href="{% url 'settings' %}" title="" data-ripple=""><button style="background-color: #ffc0cb; border: #ffc0cb;" type="button">Account settings</button></a>
+					{% else %}
+						<a href="" title="" data-ripple=""><button style="background-color: #ffc0cb; border: #ffc0cb;" type="submit">{{follower_action}}</button></a>
+					{% endif %}
+
 					</div>
 				</form>
 
@@ -70,7 +91,7 @@
 							<div class="timeline-info">
 								<ul>
 									<li class="admin-name">
-									  <h5 style="color: black;white-space: nowrap; width: 110px; font-size: 27px;"><b>@{{user.username}}</b><!--<i class="fa fa-check-circle" style="color: #48dbfb;" aria-hidden="true"></i>--></h5>
+									  <h5 style="color: black;white-space: nowrap; width: 110px; font-size: 27px;"><b>@{{user_object.username}}</b><!--<i class="fa fa-check-circle" style="color: #48dbfb;" aria-hidden="true"></i>--></h5>
 									  <!--<span>Group Admin</span>-->
 									</li>
 									<!--<li>

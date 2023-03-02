@@ -1,12 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.contrib.auth.models import User
 
 from .modules import get_image
-from .models import Profile, Post, PostLike
+from .models import Profile, Post, PostLike, Follow
 
 
 @login_required(login_url='signin')
@@ -30,9 +29,12 @@ def settings(request):
 
 @login_required(login_url='signin')
 def index(request):
+    user_name = request.user.username
+    user_follows = Follow.objects.filter(follower=user_name)
+    user_followed_usernames = [user_follow.user for user_follow in user_follows]
 
+    posts = Post.objects.filter(username__in=user_followed_usernames)
     profile = Profile.objects.get(user=request.user)
-    posts = Post.objects.all()
 
     return render(request, 'index.html', {'profile': profile, 'posts': posts})
 
@@ -126,16 +128,47 @@ def like_post(request, post_id):
 
 
 @login_required(login_url='signin')
-def profile(request, pk):
+def profile(request, username):
 
-    user = User.objects.get(username=pk)
-    user_profile = Profile.objects.get(user=user)
-    posts = Post.objects.filter(username=user.username)
-    posts_count = len(posts)
+    user_object = User.objects.get(username=username)
+    user_profile = Profile.objects.get(user=user_object)
+    posts = Post.objects.filter(username=user_object.username)
+    posts_count = posts.count()
+    follower_name = request.user.username
 
-    context = {'user': user, 'profile': user_profile, 'posts': posts, 'posts_count': posts_count}
+    follower_action = Follow.get_follower_action_name(username, follower_name)
+    user_followers_count = Follow.objects.filter(user=username).count()
+    user_following_count = Follow.objects.filter(follower=username).count()
+
+    context = {'user_object': user_object,
+               'profile': user_profile,
+               'posts': posts,
+               'posts_count': posts_count,
+               'follower_action': follower_action,
+               'user_followers_count': user_followers_count,
+               'user_following_count': user_following_count}
 
     return render(request, 'profile.html', context)
+
+
+@login_required(login_url='signin')
+def follow(request):
+    if request.method == 'POST':
+
+        follower = request.POST['follower']
+        user = request.POST['user']
+        follow_object = Follow.objects.filter(follower=follower, user=user).first()
+
+        if follow_object:
+            follow_object.delete()
+        else:
+            new_follow = Follow.objects.create(follower=follower, user=user)
+            new_follow.save()
+
+        return redirect('/profile/' + user)
+
+    else:
+        return redirect('/')
 
 
 
