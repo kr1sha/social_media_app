@@ -171,7 +171,19 @@ def follow(request):
         return redirect('/')
 
 
+def search(request):
+    username = request.user.username
+    user_object = User.objects.get(username=username)
+    user_profile = Profile.objects.get(user=user_object)
 
+    if request.method == 'POST':
+        searched_username = request.POST['username']
+        fonded_users = User.objects.filter(username__icontains=searched_username)
+        founded_user_profiles = Profile.objects.filter(user__in=fonded_users)
+
+        return render(request, 'search.html', {'user_profile': user_profile, 'founded_user_profiles': founded_user_profiles})
+
+    return render(request, 'search.html', {'user_profile': user_profile})
 
 
 
