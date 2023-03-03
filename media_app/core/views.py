@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
@@ -35,8 +37,9 @@ def index(request):
 
     posts = Post.objects.filter(username__in=user_followed_usernames)
     profile = Profile.objects.get(user=request.user)
+    suggestion_profiles = Profile.get_not_followed_by_user_profiles(user_followed_usernames, user_name)[:5]
 
-    return render(request, 'index.html', {'profile': profile, 'posts': posts})
+    return render(request, 'index.html', {'profile': profile, 'posts': posts, 'suggestion_profiles': suggestion_profiles})
 
 
 def signup(request):

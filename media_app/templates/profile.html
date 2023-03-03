@@ -22,15 +22,13 @@
 <!--<div class="se-pre-con"></div>-->
 <div class="theme-layout">
 	
-	</div>
-	
+</div>
 	<section>
 			<div class="feature-photo">
 				<figure><img src="{% static 'images/resources/timeline-1.jpg' %}" alt=""></figure>
 				<form action="{% url 'follow' %}" method="POST">
 					{% csrf_token %}
 					<div class="add-btn">
-
 					<span style="color: white; font-size: 27px; margin-right: 520px;"><b><u><a href="/">Home</a></u></b></span>
 					{% if posts_count == 0 %}
 						<span style="color: white; font-size: 27px;"><b>No posts</b></span>

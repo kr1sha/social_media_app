@@ -1,3 +1,5 @@
+import random
+
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.db import models
@@ -19,8 +21,14 @@ class Profile(models.Model):
         self.bio = bio
         self.location = location
 
-    def __str__(self):
-        return self.user.username
+    @staticmethod
+    def get_not_followed_by_user_profiles(user_followed_usernames: list, user_name: str) -> list:
+        """get shuffled list of profiles which not followed by user """
+        not_followed_user_profiles = list(
+            Profile.objects.exclude(user__username__in=(user_followed_usernames + [user_name])))
+        random.shuffle(not_followed_user_profiles)
+
+        return not_followed_user_profiles
 
     @classmethod
     def create(cls, request, username: str, email: str, password: str, password2: str):
@@ -31,6 +39,9 @@ class Profile(models.Model):
 
         profile = cls(user=user, id_user=user.id)
         return profile
+
+    def __str__(self):
+        return self.user.username
 
 
 class Post(models.Model):
