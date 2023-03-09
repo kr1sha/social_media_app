@@ -54,9 +54,11 @@ class Post(models.Model):
 
     def increase_like(self):
         self.number_of_likes += 1
+        self.save()
 
     def decrease_like(self):
         self.number_of_likes -= 1
+        self.save()
 
     def get_id(self):
         return int(self.id)
@@ -71,6 +73,17 @@ class PostLike(models.Model):
 
     def __str__(self):
         return self.username
+
+    @classmethod
+    def create_like(cls, post, username):
+        new_like = cls(post_id=post.get_id(), username=username)
+        post.increase_like()
+        new_like.save()
+        return new_like
+
+    def delete_like(self, post):
+        self.delete()
+        post.decrease_like()
 
 
 class Follow(models.Model):

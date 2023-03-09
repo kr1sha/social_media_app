@@ -98,7 +98,6 @@ def upload(request):
         caption = request.POST['caption']
 
         post = Post.objects.create(username=username, image=image, caption=caption)
-        post.save()
 
         return redirect('/')
 
@@ -114,19 +113,11 @@ def like_post(request, post_id):
     existing_like = PostLike.objects.filter(post_id=post_id, username=username).first()
 
     if existing_like is None:
-
-        new_like = PostLike.objects.create(post_id=post_id, username=username)
-        new_like.save()
-
-        post.increase_like()
-        post.save()
-
+        new_like = PostLike.create_like(post, username)
         return redirect('/')
 
     else:
-        existing_like.delete()
-        post.decrease_like()
-        post.save()
+        existing_like.delete_like(post)
         return redirect('/')
 
 
@@ -166,7 +157,6 @@ def follow(request):
             follow_object.delete()
         else:
             new_follow = Follow.objects.create(follower=follower, user=user)
-            new_follow.save()
 
         return redirect('/profile/' + user)
 
